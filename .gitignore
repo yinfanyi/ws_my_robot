@@ -1,6 +1,6 @@
 build/*
 **/build/*
-
+src/simple_demo/refenence/
 devel/
 install/*
 *.log
