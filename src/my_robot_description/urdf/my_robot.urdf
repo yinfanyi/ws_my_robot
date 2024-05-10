@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<robot name="multipleshapes">
+
+  <material name="blue">
+    <color rgba="0 0 0.8 1"/>
+  </material>
+    <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/base_link.STL"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+          <mesh filename="package://my_robot_description/meshes/my_robot/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="link1">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link1.STL"/>
+      </geometry>
+      <!-- <origin rpy="0 0 0" xyz="0.25 0.025 0.01"/> -->
+      <origin rpy="0 0 0" xyz="-0.05 -0.05 0"/>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link1.STL"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.05 -0.05 0"/>
+    </collision>
+  </link>
+
+  <joint name="base_to_link1" type="revolute">
+    <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-3.0718" soft_upper_limit="3.0718" />
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-3.14" upper="3.14" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0.3 0.075 0.01"/>
+    <parent link="base_link"/>
+    <child link="link1"/>
+  </joint>
+
+  <link name="link2">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link2.STL"/>
+      </geometry>
+      <!-- <origin rpy="0 0 0" xyz="0.25 0.025 0.01"/> -->
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link2.STL"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </collision>
+  </link>
+
+  <joint name="link1_to_link2" type="prismatic">
+    <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-0.13" soft_upper_limit="0.18" />
+    <axis xyz="0 0 1"/>
+    <parent link="link1"/>
+    <child link="link2"/>
+    <limit effort="1000.0" lower="-0.14" upper="0.19" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="-0.12 -0.04 0.2"/>
+  </joint>
+
+  <link name="link3">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link3.STL"/>
+      </geometry>
+      <!-- <origin rpy="0 0 0" xyz="0.25 0.025 0.01"/> -->
+      <origin rpy="0 0 0" xyz="-0.04 -0.04 0"/>
+      <!-- <material name="white"/> -->
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link3.STL"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.04 -0.04 0"/>
+    </collision>
+  </link>
+
+  <joint name="link2_to_link3" type="revolute">
+    <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-1.4" soft_upper_limit="1.4" />
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-1.5" upper="1.5" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0.5 0.04 0"/>
+    <parent link="link2"/>
+    <child link="link3"/>
+  </joint>
+
+  <link name="link4">
+    <visual>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link4.STL"/>
+      </geometry>
+      <!-- <origin rpy="0 0 0" xyz="0.25 0.025 0.01"/> -->
+      <origin rpy="0 3.14159 0" xyz="0.015 -0.015 0"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://my_robot_description/meshes/my_robot/link4.STL"/>
+      </geometry>
+      <origin rpy="0 3.14159 0" xyz="0.015 -0.015 0"/>
+    </collision>
+  </link>
+
+  <joint name="link3_to_link4" type="revolute">
+    <safety_controller k_position="100.0" k_velocity="40.0" soft_lower_limit="-3.15" soft_upper_limit="3.15" />
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-3.5" upper="3.5" velocity="0.5"/>
+    <origin rpy="0 0 0" xyz="0.28 0 0"/>
+    <parent link="link3"/>
+    <child link="link4"/>
+  </joint>
+
+</robot>

@@ -1,0 +1,25 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: my_robot_description
+    relative_path: urdf/my_robot.urdf
+  srdf:
+    relative_path: config/multipleshapes.srdf
+  package_settings:
+    author_name: yyf
+    author_email: yinfanyi@sjtu.edu.cn
+    generated_timestamp: 1714984313
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+      - velocity

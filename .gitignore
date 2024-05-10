@@ -1,0 +1,18 @@
+build/*
+**/build/*
+
+devel/
+install/*
+*.log
+*.db
+*.cache
+*.pid
+*.pyc
+
+# ROS specific
+*.bag
+*.pcd
+
+# IDE specific
+.vscode/
+log/

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>my_robot_description</name>
+  <version>2.0.6</version>
+  <description>my_robot Resources</description>
+
+  <author email="yinfanyi@sjtu.edu.cn">Yi Yinfan</author>
+  <maintainer email="yinfanyi@sjtu.edu.cn">Yi Yinfan</maintainer>
+
+
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+      <build_type>ament_cmake</build_type>
+  </export>
+</package>
