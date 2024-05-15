@@ -10,7 +10,7 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("motion_planning_api_tutorial");
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("motion_planning_api_try");
 
 int main(int argc, char** argv)
 {
@@ -18,51 +18,28 @@ int main(int argc, char** argv)
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
   std::shared_ptr<rclcpp::Node> motion_planning_api_tutorial_node =
-      rclcpp::Node::make_shared("motion_planning_api_tutorial", node_options);
+      rclcpp::Node::make_shared("motion_planning_api_try", node_options);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(motion_planning_api_tutorial_node);
   std::thread([&executor]() { executor.spin(); }).detach();
 
-  // BEGIN_TUTORIAL
-  // Start
-  // ^^^^^
-  // Setting up to start using a planner is pretty easy. Planners are
-  // setup as plugins in MoveIt and you can use the ROS pluginlib
-  // interface to load any planner that you want to use. Before we can
-  // load the planner, we need two objects, a RobotModel and a
-  // PlanningScene. We will start by instantiating a
-  // :moveit_codedir:`RobotModelLoader<moveit_ros/planning/robot_model_loader/include/moveit/robot_model_loader/robot_model_loader.h>`
-  // object, which will look up the robot description on the ROS
-  // parameter server and construct a
-  // :moveit_codedir:`RobotModel<moveit_core/robot_model/include/moveit/robot_model/robot_model.h>`
-  // for us to use.
-  const std::string PLANNING_GROUP = "panda_arm";
+  const std::string PLANNING_GROUP = "my_arm1";
   robot_model_loader::RobotModelLoader robot_model_loader(motion_planning_api_tutorial_node, "robot_description");
   const moveit::core::RobotModelPtr& robot_model = robot_model_loader.getModel();
   /* Create a RobotState and JointModelGroup to keep track of the current robot pose and planning group*/
   moveit::core::RobotStatePtr robot_state(new moveit::core::RobotState(robot_model));
   const moveit::core::JointModelGroup* joint_model_group = robot_state->getJointModelGroup(PLANNING_GROUP);
 
-  // Using the
-  // :moveit_codedir:`RobotModel<moveit_core/robot_model/include/moveit/robot_model/robot_model.h>`,
-  // we can construct a
-  // :moveit_codedir:`PlanningScene<moveit_core/planning_scene/include/moveit/planning_scene/planning_scene.h>`
-  // that maintains the state of the world (including the robot).
   planning_scene::PlanningScenePtr planning_scene(new planning_scene::PlanningScene(robot_model));
 
-  // Configure a valid robot state
   planning_scene->getCurrentStateNonConst().setToDefaultValues(joint_model_group, "ready");
 
-  // We will now construct a loader to load a planner, by name.
-  // Note that we are using the ROS pluginlib library here.
   std::unique_ptr<pluginlib::ClassLoader<planning_interface::PlannerManager>> planner_plugin_loader;
   planning_interface::PlannerManagerPtr planner_instance;
   std::string planner_plugin_name;
 
-  // We will get the name of planning plugin we want to load
-  // from the ROS parameter server, and then load the planner
-  // making sure to catch all exceptions.
+
   if (!motion_planning_api_tutorial_node->get_parameter("planning_plugin", planner_plugin_name))
     RCLCPP_FATAL(LOGGER, "Could not find planner plugin name");
   try
@@ -128,7 +105,7 @@ int main(int argc, char** argv)
   planning_interface::MotionPlanRequest req;
   planning_interface::MotionPlanResponse res;
   geometry_msgs::msg::PoseStamped pose;
-  pose.header.frame_id = "panda_link0";
+  pose.header.frame_id = "base_link";
   pose.pose.position.x = 0.3;
   pose.pose.position.y = 0.4;
   pose.pose.position.z = 0.75;
