@@ -10,7 +10,7 @@
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 
-static const rclcpp::Logger LOGGER = rclcpp::get_logger("motion_planning_api_try");
+static const rclcpp::Logger LOGGER = rclcpp::get_logger("motion_planning");
 
 int main(int argc, char** argv)
 {
@@ -18,7 +18,7 @@ int main(int argc, char** argv)
   rclcpp::NodeOptions node_options;
   node_options.automatically_declare_parameters_from_overrides(true);
   std::shared_ptr<rclcpp::Node> motion_planning_api_tutorial_node =
-      rclcpp::Node::make_shared("motion_planning_api_try", node_options);
+      rclcpp::Node::make_shared("motion_planning", node_options);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(motion_planning_api_tutorial_node);
@@ -76,7 +76,7 @@ int main(int argc, char** argv)
   // The package MoveItVisualTools provides many capabilities for visualizing objects, robots,
   // and trajectories in RViz as well as debugging tools such as step-by-step introspection of a script.
   namespace rvt = rviz_visual_tools;
-  moveit_visual_tools::MoveItVisualTools visual_tools(motion_planning_api_tutorial_node, "panda_link0",
+  moveit_visual_tools::MoveItVisualTools visual_tools(motion_planning_api_tutorial_node, "base_link",
                                                       "move_group_tutorial", move_group.getRobotModel());
   visual_tools.enableBatchPublishing();
   visual_tools.deleteAllMarkers();  // clear all old markers
@@ -107,8 +107,8 @@ int main(int argc, char** argv)
   geometry_msgs::msg::PoseStamped pose;
   pose.header.frame_id = "base_link";
   pose.pose.position.x = 0.3;
-  pose.pose.position.y = 0.4;
-  pose.pose.position.z = 0.75;
+  pose.pose.position.y = 0.3;
+  pose.pose.position.z = 0.3;
   pose.pose.orientation.w = 1.0;
 
   // A tolerance of 0.01 m is specified in position
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
   // :moveit_codedir:`kinematic_constraints<moveit_core/kinematic_constraints/include/moveit/kinematic_constraints/kinematic_constraint.h>`
   // package.
   moveit_msgs::msg::Constraints pose_goal =
-      kinematic_constraints::constructGoalConstraints("panda_link8", pose, tolerance_pose, tolerance_angle);
+      kinematic_constraints::constructGoalConstraints("link3", pose, tolerance_pose, tolerance_angle);
 
   req.group_name = PLANNING_GROUP;
   req.goal_constraints.push_back(pose_goal);
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
   pose.pose.position.z = 0.65;
   pose.pose.orientation.w = 1.0;
   moveit_msgs::msg::Constraints pose_goal_2 =
-      kinematic_constraints::constructGoalConstraints("panda_link8", pose, tolerance_pose, tolerance_angle);
+      kinematic_constraints::constructGoalConstraints("link3", pose, tolerance_pose, tolerance_angle);
 
   /* Now, let's try to move to this new pose goal*/
   req.goal_constraints.clear();
@@ -252,8 +252,8 @@ int main(int argc, char** argv)
   /* But, let's impose a path constraint on the motion.
      Here, we are asking for the end-effector to stay level*/
   geometry_msgs::msg::QuaternionStamped quaternion;
-  quaternion.header.frame_id = "panda_link0";
-  req.path_constraints = kinematic_constraints::constructGoalConstraints("panda_link8", quaternion);
+  quaternion.header.frame_id = "base_link";
+  req.path_constraints = kinematic_constraints::constructGoalConstraints("link3", quaternion);
 
   // Imposing path constraints requires the planner to reason in the space of possible positions of the end-effector
   // (the workspace of the robot)

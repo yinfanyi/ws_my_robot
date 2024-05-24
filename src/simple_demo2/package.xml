@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>urdf_tutorial_r2d2</name>
+  <name>simple_demo2</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="yyfros2@todo.todo">yyfros2</maintainer>
+  <maintainer email="yinfanyi@sjtu.edu.cn">yyfros2</maintainer>
   <license>Apache-2.0</license>
 
   <depend>rclpy</depend>

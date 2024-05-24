@@ -1,7 +1,7 @@
 import os
-import yaml
 from launch import LaunchDescription
 from launch_ros.actions import Node
+import yaml
 from ament_index_python.packages import get_package_share_directory
 
 
@@ -54,8 +54,8 @@ def generate_launch_description():
         [
             Node(
                 package="simple_demo",
-                executable="motion_planning_api_try",
-                name="motion_planning_api_try",
+                executable="motion_planning",
+                name="motion_planning",
                 parameters=[
                     robot_description,
                     robot_description_semantic,
