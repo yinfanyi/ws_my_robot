@@ -1,16 +1,27 @@
 from math import sin, cos, pi
+import time
+import threading
+import re
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
+from rclpy.parameter import Parameter
+from rclpy.clock import Clock
+
+
 from geometry_msgs.msg import Quaternion
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String
-from tf2_ros import TransformBroadcaster, TransformStamped
-import threading
-from rclpy.parameter import Parameter
+from std_msgs.msg import String, Float64
 from rcl_interfaces.msg import ParameterEvent
-import time
 
+from tf2_ros import TransformBroadcaster, TransformStamped
+
+import numpy as np
+from pynput import keyboard
+from pynput.keyboard import Listener, Key
+
+PI = np.pi
 
 class StatePublisher(Node):
 
@@ -21,6 +32,7 @@ class StatePublisher(Node):
         qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
         self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
+
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
@@ -49,6 +61,7 @@ class StatePublisher(Node):
 
                 # send the joint state and transform
                 self.joint_pub.publish(joint_state)
+                print('send already')
 
                 # create new robot state
                 self.base_to_link1 += degree
@@ -215,12 +228,13 @@ class StatePublisher3(Node):
 class StatePublisher4(Node):
     # 尝试参数订阅,另外写个节点来发送参数
     def __init__(self):
-        rclpy.init()
+        
         super().__init__('state_publisher4')
 
         qos_profile = QoSProfile(depth=10)
         self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
         self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
+
         self.nodeName = self.get_name()
         self.get_logger().info("{0} started".format(self.nodeName))
 
@@ -231,7 +245,45 @@ class StatePublisher4(Node):
             qos_profile)
         self.subscription  # prevent unused variable warning
 
+        # robot state
+        self.base_to_link1 = 0.0
+        self.link1_to_link2 = 0.18
+        self.link2_to_link3 = 1.4
+        self.link3_to_link4 = 3.15
+
+    def joint_angles_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
+        now = self.get_clock().now()
+        
+        joint_state = JointState()
+        joint_state.header.stamp = now.to_msg()
+        joint_state.name = ['base_to_link1', 'link1_to_link2', 'link2_to_link3', 'link3_to_link4']
+        joint_state.position = [self.base_to_link1, self.link1_to_link2, self.link2_to_link3, self.link3_to_link4]
+
+        # send the joint state and transform
+        self.joint_pub.publish(joint_state)
+
+        # create new robot state
+
+        degree = pi / 180.0
+        self.base_to_link1 += degree
+        if self.base_to_link1 < -3.14 or self.base_to_link1 > 3.14:
+            self.base_to_link1 *= -1
+
+class StatePublisher5(Node):
+
+    def __init__(self):
+        rclpy.init()
+        super().__init__('state_publisher')
+
+        qos_profile = QoSProfile(depth=10)
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', qos_profile)
+        self.broadcaster = TransformBroadcaster(self, qos=qos_profile)
+        self.nodeName = self.get_name()
+        self.get_logger().info("{0} started".format(self.nodeName))
+
         loop_rate = self.create_rate(30)
+
 
         # robot state
         self.base_to_link1 = 0.0
@@ -240,41 +292,96 @@ class StatePublisher4(Node):
         self.link3_to_link4 = 3.15
 
         degree = pi / 180.0
+        
+        # message declarations
+        joint_state = JointState()
 
         try:
             while rclpy.ok():
                 rclpy.spin_once(self)
-
+                
                 # update joint_state
                 now = self.get_clock().now()
-                joint_state = JointState()
                 joint_state.header.stamp = now.to_msg()
                 joint_state.name = ['base_to_link1', 'link1_to_link2', 'link2_to_link3', 'link3_to_link4']
                 joint_state.position = [self.base_to_link1, self.link1_to_link2, self.link2_to_link3, self.link3_to_link4]
 
                 # send the joint state and transform
                 self.joint_pub.publish(joint_state)
+                print('send already')
 
                 # create new robot state
                 self.base_to_link1 += degree
                 if self.base_to_link1 < -3.14 or self.base_to_link1 > 3.14:
                     self.base_to_link1 *= -1
 
+                # This will adjust as needed per iteration
                 loop_rate.sleep()
 
         except KeyboardInterrupt:
             pass
 
-    def joint_angles_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
-        # self.base_to_link1 = msg.position[0]
-        # self.link1_to_link2 = msg.position[1]
-        # self.link2_to_link3 = msg.position[2]
-        # self.link3_to_link4 = msg.position[3]
+msg="""
+接收来自键盘的信号，将信号处理后发送给仿真界面
+按Ctrl+C退出
+"""
+
+class StatePublisher6(Node):
+    print(msg)
+    def __init__(self):
+        super().__init__('StatePublisher6')
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
+        self.subscription = self.create_subscription(
+            String,
+            'my_joint_states',
+            self.my_joint_states_callback,
+            10)
+        self.curr_joint_states = None
+        self.timer = self.create_timer(1/30, self.timer_callback)  # Timer to publish at 30Hz
+
+    def my_joint_states_callback(self, msg):
+        if msg.data != self.curr_joint_states:
+            print('received message from keyboard!')
+            self.curr_joint_states = msg.data
+
+    def timer_callback(self):
+        if self.curr_joint_states is not None:
+            self.publish_realtime_joint_states()
+
+    def publish_realtime_joint_states(self):
+
+        joint_state = JointState()
+        now = self.get_clock().now()
+        joint_state.header.stamp = now.to_msg()
+        joint_state.name = ['base_to_link1', 'link1_to_link2', 'link2_to_link3', 'link3_to_link4']
+        self.curr_joint_states
+        joint_states = re.findall(r':(.*?),', self.curr_joint_states)
+        joint_state.position = [float(joint_states[0]), float(joint_states[1]), float(joint_states[2]), float(joint_states[3])]
+        # print(joint_states)
+        self.joint_pub.publish(joint_state)
+
+def main6(args=None):
+    rclpy.init(args=args)
+    node = StatePublisher6()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 def main():
+    node = StatePublisher5()
+
+def main4():
+    rclpy.init()
     node = StatePublisher4()
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(node)
+            loop_rate = node.create_rate(30)
+
+            loop_rate.sleep()
+    except KeyboardInterrupt:
+        pass
 
 def main2():
     # rclpy.init()
@@ -294,6 +401,7 @@ def main3(args=None):
 
     node.destroy_node()
     rclpy.shutdown()
+    
 
 if __name__ == '__main__':
     main()
